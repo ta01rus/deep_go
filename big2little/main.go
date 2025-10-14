@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"unsafe"
 )
 
@@ -19,6 +18,6 @@ func convert[T int32 | int64 | int16 | int8](in T) T {
 		p := (size - i - 1) * 8
 		result |= T(int(b) << p)
 	}
-	fmt.Printf("%x\n", result)
+
 	return result
 }
