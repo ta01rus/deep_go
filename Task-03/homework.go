@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"runtime"
 	"unsafe"
 )
 
@@ -58,4 +60,28 @@ func (b *COWBuffer) Update(index int, value byte) bool {
 // сконвертировать буффер в строку
 func (b *COWBuffer) String() string {
 	return unsafe.String(unsafe.SliceData(b.data), len(b.data))
+}
+
+func printAllocs() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	fmt.Printf("%d MB\n", m.Alloc/1024/1024)
+}
+
+func main() {
+
+	data := []byte{'a', 'b', 'c', 'd'}
+	buffer := NewCOWBuffer(data)
+
+	printAllocs()
+
+	copy1 := buffer.Clone()
+	_ = copy1
+
+	copy1.Close()
+
+	printAllocs()
+
+	runtime.KeepAlive(buffer)
+
 }
