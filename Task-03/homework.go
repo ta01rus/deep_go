@@ -30,7 +30,7 @@ func (b *COWBuffer) Clone() COWBuffer {
 
 // перестать использовать копию буффера
 func (b *COWBuffer) Close() {
-	if *b.refs > 0 {
+	if *b.refs > 1 {
 		b.data = nil
 	}
 	*b.refs = *b.refs - 1
@@ -44,14 +44,18 @@ func (b *COWBuffer) Update(index int, value byte) bool {
 		return false
 	}
 
-	if *b.refs > 0 {
+	if *b.refs > 1 {
 		*b.refs = *b.refs - 1
 
 		dest := make([]byte, len(b.data))
 		copy(dest, b.data)
 
 		// fix: "Внутри можно конструктор переиспользовать"
+
 		(*b) = NewCOWBuffer(dest)
+		// var i = 1
+		// b.data = dest
+		// b.refs = &i
 	}
 
 	b.data[index] = value
