@@ -11,9 +11,11 @@ type COWBuffer struct {
 
 // создать буфер с определенными данными
 func NewCOWBuffer(data []byte) COWBuffer {
+	var v int = 1
 	return COWBuffer{
 		data: data,
-		refs: new(int),
+		// fix "Я бы единицей инициализировал бы, ведь 1 объект создался уже"
+		refs: &v,
 	}
 }
 
@@ -29,7 +31,7 @@ func (b *COWBuffer) Clone() COWBuffer {
 // перестать использовать копию буффера
 func (b *COWBuffer) Close() {
 	if *b.refs > 0 {
-		b.data = []byte{}
+		b.data = nil
 	}
 	*b.refs = *b.refs - 1
 }
@@ -37,22 +39,24 @@ func (b *COWBuffer) Close() {
 // изменить определенный байт в буффере
 func (b *COWBuffer) Update(index int, value byte) bool {
 
-	if 0 <= index && index < len(b.data)-1 {
-
-		if *b.refs > 0 {
-			*b.refs = *b.refs - 1
-
-			dest := make([]byte, len(b.data))
-			copy(dest, b.data)
-
-			b.data = dest
-			b.refs = new(int)
-		}
-
-		b.data[index] = value
-		return true
+	// fix: "Сложно, зачем такая вложенность условий?"
+	if 0 > index || index > len(b.data)-1 {
+		return false
 	}
-	return false
+
+	if *b.refs > 0 {
+		*b.refs = *b.refs - 1
+
+		dest := make([]byte, len(b.data))
+		copy(dest, b.data)
+
+		// fix: "Внутри можно конструктор переиспользовать"
+		(*b) = NewCOWBuffer(dest)
+	}
+
+	b.data[index] = value
+	return true
+
 }
 
 // сконвертировать буффер в строку
