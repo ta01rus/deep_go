@@ -41,8 +41,7 @@ func Reduce(data []int, initial int, action func(int, int) int) int {
 		return 0
 	}
 
-	initial = action(initial, data[0])
-	for i := 1; i < l; i++ {
+	for i := 0; i < l; i++ {
 		initial = action(initial, data[i])
 	}
 	return initial
