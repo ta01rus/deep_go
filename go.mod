@@ -2,7 +2,10 @@ module github.com/ta01rus/deep_go
 
 go 1.25.2
 
-require github.com/stretchr/testify v1.11.1
+require (
+	github.com/stretchr/testify v1.11.1
+	golang.org/x/exp v0.0.0-20251113190631-e25ba8c21ef6
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
